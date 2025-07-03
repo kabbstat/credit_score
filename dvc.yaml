@@ -1,0 +1,3 @@
+stages:
+  data_collection:
+    cmd: python src/data_collection.py
