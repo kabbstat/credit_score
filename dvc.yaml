@@ -1,3 +1,12 @@
 stages:
-  data_collection:
+  collection:
     cmd: python src/data_collection.py
+    outs:
+    - data/raw/data.csv
+  processing:
+    cmd: python src/data_prepro.py
+    deps:
+    - data/raw/data.csv
+    - src/data_prepro.py
+    outs:
+    - data/processed/processed.csv
