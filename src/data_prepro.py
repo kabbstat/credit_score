@@ -38,6 +38,8 @@ def preprocess_data(data):
     # deal with some problem feature in the dataset 
     data_pro['payment_behaviour'] = data_pro['payment_behaviour'].replace('!@9#%8', 'unknown')
     data_pro['credit_mix'] = data_pro['credit_mix'].replace('_',pd.NA)
+    data_pro['occupation'] = data_pro['occupation'].replace('_______', pd.NA)
+    data_pro['occupation']= data_pro.groupby('customer_id')['occupation'].transform(lambda x: x.fillna(x.dropna().iloc[0]) if not x.dropna().empty else x)
     return data_pro
 def deal_missing_values(data):
     for col in data.columns:
@@ -56,15 +58,17 @@ def feature_eng(data_pro):
     data_pro['debt_to_income'] = data_pro['outstanding_debt'] / data_pro['annual_income']
     data_pro['emi_to_income_ratio'] = data_pro['total_emi_per_month'] / data_pro['monthly_inhand_salary']
     data_pro['loan_to_income_ratio'] = data_pro['outstanding_debt'] / data_pro['monthly_inhand_salary']
-    data_pro['delayed_payment_freq'] = data_pro['num_of_delayed_payment'] / data_pro['num_of_loan']
+    #data_pro['delayed_payment_freq'] = data_pro['num_of_delayed_payment'] / data_pro['num_of_loan']
     # new scores
     data_pro['credit_efficiency'] = data_pro['credit_utilization_ratio'] *(1- data_pro['delay_from_due_date'])
     data_pro['disposable_income_factor'] = (data_pro['monthly_inhand_salary'] - data_pro['total_emi_per_month'])/data_pro['monthly_inhand_salary']
     data_pro['payment_discipline_score'] = 1 - (data_pro['num_of_delayed_payment'] / (data_pro['num_credit_inquiries'] + 1))
-    data_pro.replace([np.inf, -np.inf], np.nan)  # Replace inf with NaN
+    data_pro = data_pro.replace([np.inf, -np.inf], np.nan)  # Replace inf with NaN
+    #imputer_quant = SimpleImputer(strategy='median', missing_values=np.nan)
+    #data_pro['delayed_payment_freq'] = imputer_quant.fit_transform(data_pro[['delayed_payment_freq']]).ravel() 
     return data_pro
 def create_feature_list(data):
-    critical_features = ['total_month','outstanding_debt','num_of_delayed_payment','payment_behaviour','credit_utilization_ratio']
+    critical_features = ['total_month','outstanding_debt','num_of_delayed_payment','payment_behaviour','occupation','payment_of_min_amount','credit_utilization_ratio','target']
     important_features = ['annual_income', 'total_emi_per_month', 'monthly_inhand_salary','delay_from_due_date', 'credit_mix']
     engineered_features= [ 'debt_to_income', 'emi_to_income_ratio', 'loan_to_income_ratio', 'delayed_payment_freq', 'credit_efficiency', 'disposable_income_factor', 'payment_discipline_score']
     all_features = critical_features + important_features + engineered_features
@@ -72,7 +76,7 @@ def create_feature_list(data):
     numerical_features = data[available_features].select_dtypes(include=['int64','float64','uint8']).columns.tolist()
     categorical_features = data[available_features].select_dtypes(include=['object']).columns.tolist()
     return {
-        'features' : available_features , 
+        'features': available_features,
         'numerical' : numerical_features , 
         'categorical' : categorical_features
     }
@@ -88,6 +92,9 @@ def main():
     eng = feature_eng(clean)
 
     feats = create_feature_list(eng)
+    with open('data/processed/features.txt','w') as f:
+        for feat in feats['features']:
+            f.write(feat + '\n')
     print("Features sélectionnées :", feats)
 
     out_dir = os.path.join('data', 'processed')
