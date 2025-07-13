@@ -11,7 +11,7 @@ def data_collection():
     return df
 def save_data(df):
     data_path = os.path.join("data","raw")
-    os.makedirs(data_path)
+    os.makedirs(data_path, exist_ok= True)
     output_path = os.path.join(data_path, "data.csv")
     df.to_csv(output_path, index =  False)
 

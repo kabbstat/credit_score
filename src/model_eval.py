@@ -2,6 +2,7 @@ import pandas as pd
 from data_prepro import create_feature_list
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.pipeline import Pipeline
@@ -59,7 +60,7 @@ def main():
     
     # Créer le pipeline
     model = Pipeline([('preprocessor', preprocessor),
-        ('classifier', RandomForestClassifier(n_estimators=1000, random_state=42))])
+        ('classifier', RandomForestClassifier(n_estimators=500 , random_state=42))])
 
     # Entraîner le modèle
     model.fit(X_train, y_train)

@@ -16,7 +16,7 @@ def load_data():
 data = load_data()
 if data is None:
     st.stop("data not found, please check the data path")
-st.title("Exploratory Data Analysis of Credit Card Default Prediction Dataset")
+st.title("Exploratory Data Analysis of Credit scoring Prediction Dataset")
 st.sidebar.header("EDA options")
 show_data_info = st.sidebar.checkbox("Show Data Info", value=True)
 show_target_variable = st.sidebar.checkbox("Show target variable", value = True)
@@ -95,7 +95,11 @@ if show_categorical_distribution:
         else:
             column = selected_viz.replace("Distribution de ", "")
             count_plot(column, f"Distribution of {column}")
-
+st.sidebar.header("Model Evaluation Options")
+Modelisation = st.sidebar.checkbox("Modelisation", value=True)
+if Modelisation:
+    st.subheader("Model evaluation")
+    
 
 
 

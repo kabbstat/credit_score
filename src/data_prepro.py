@@ -36,10 +36,11 @@ def preprocess_data(data):
     extracted = data_pro['credit_history_age'].str.extract(r'(?P<Years>\d+)\s*Years\s*and\s*(?P<Months>\d+)\s*Months').astype(float)
     data_pro['total_month'] = extracted['Years'] *12 + extracted['Months']
     # deal with some problem feature in the dataset 
-    data_pro['payment_behaviour'] = data_pro['payment_behaviour'].replace('!@9#%8', 'unknown')
+    data_pro['payment_behaviour'] = data_pro['payment_behaviour'].replace('!@9#%8', pd.NA)
     data_pro['credit_mix'] = data_pro['credit_mix'].replace('_',pd.NA)
     data_pro['occupation'] = data_pro['occupation'].replace('_______', pd.NA)
     data_pro['occupation']= data_pro.groupby('customer_id')['occupation'].transform(lambda x: x.fillna(x.dropna().iloc[0]) if not x.dropna().empty else x)
+    data_pro['payment_beaviour'] = data_pro.groupby('customer_id')['payment_behaviour'].transform(lambda x: x.fillna(x.dropna().mode()) if not x.dropna().empty else x)
     return data_pro
 def deal_missing_values(data):
     for col in data.columns:
