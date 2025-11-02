@@ -18,10 +18,21 @@ stages:
       size: 32320478
     - path: src/data_prepro.py
       hash: md5
-      md5: 29dbdb596e61683391e45592e5659bea
-      size: 5564
+      md5: 4c50fbc2248b66bce5b00fcbc95e401c
+      size: 5566
     outs:
     - path: data/processed/processed.csv
       hash: md5
       md5: 12ae369aa5636d04adf6416375dff33b
       size: 47942155
+  model_training:
+    cmd: python src/model_training.py
+    deps:
+    - path: data/processed/processed.csv
+      hash: md5
+      md5: 12ae369aa5636d04adf6416375dff33b
+      size: 47942155
+    - path: src/model_training.py
+      hash: md5
+      md5: 15d9417ee13b1155b417073714687a0c
+      size: 2873

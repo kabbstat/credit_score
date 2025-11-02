@@ -10,3 +10,9 @@ stages:
     - src/data_prepro.py
     outs:
     - data/processed/processed.csv
+  model_training:
+    cmd: python src/model_training.py
+    deps:
+    - data/processed/processed.csv
+    - src/model_training.py
+

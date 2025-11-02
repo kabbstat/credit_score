@@ -42,6 +42,7 @@ def preprocess_data(data):
     data_pro['occupation']= data_pro.groupby('customer_id')['occupation'].transform(lambda x: x.fillna(x.dropna().iloc[0]) if not x.dropna().empty else x)
     data_pro['payment_beaviour'] = data_pro.groupby('customer_id')['payment_behaviour'].transform(lambda x: x.fillna(x.dropna().mode()) if not x.dropna().empty else x)
     return data_pro
+
 def deal_missing_values(data):
     for col in data.columns:
         if data[col].isnull().any():
