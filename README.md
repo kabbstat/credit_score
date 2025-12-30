@@ -1,267 +1,285 @@
-# Credit Score Prediction - MLOps Project
+# 🏦 Credit Score Prediction - MLOps Project
 
-[![CI/CD](https://github.com/username/credit-score/workflows/ML%20Pipeline%20CI/CD/badge.svg)](https://github.com/username/credit-score/actions)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+<div align="center">
+
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)
+![MLflow](https://img.shields.io/badge/MLflow-0194E2?style=for-the-badge&logo=mlflow&logoColor=white)
+![DVC](https://img.shields.io/badge/DVC-945DD6?style=for-the-badge&logo=dvc&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+
+**Un pipeline MLOps complet pour la prédiction de score de crédit**
+
+[🚀 Quick Start](#-quick-start) •
+[📊 Pipeline](#-pipeline-dvc) •
+[📈 MLflow](#-mlflow-tracking) •
+[🐳 Docker](#-docker)
+
+</div>
+
+---
 
 ## 📋 Description
 
-Ce projet implémente un pipeline MLOps complet pour la prédiction de score de crédit, suivant les meilleures pratiques de l'industrie :
+Ce projet implémente un **pipeline MLOps production-ready** pour la prédiction de score de crédit, utilisant les meilleures pratiques de l'industrie.
 
-- ✅ **Versioning des données** avec DVC
-- ✅ **Tracking des expériences** avec MLflow
-- ✅ **Configuration centralisée** avec YAML
-- ✅ **Tests unitaires** avec pytest
-- ✅ **Validation des données** avec schémas
-- ✅ **CI/CD** avec GitHub Actions
-- ✅ **Containerisation** avec Docker
-- ✅ **Pre-commit hooks** pour la qualité du code
+### ✨ Fonctionnalités
 
-## 🏗️ Structure du Projet
+| Feature | Description |
+|---------|-------------|
+| 🔄 **DVC Pipeline** | Versioning des données et orchestration du pipeline |
+| 📊 **MLflow Tracking** | Suivi des expériences, métriques et artefacts |
+| ⚙️ **Configuration YAML** | Configuration centralisée et modulable |
+| ✅ **Data Validation** | Validation automatique des données avec schémas |
+| 🐳 **Docker Ready** | Containerisation complète avec docker-compose |
+| 🔁 **CI/CD** | GitHub Actions pour l'intégration continue |
+| 📱 **Streamlit Dashboard** | Interface web pour l'exploration des données |
+
+## 🏗️ Architecture du Projet
 
 ```
 credit_score/
-├── .github/
-│   └── workflows/          # CI/CD pipelines
-│       ├── ci.yaml
-│       └── model-report.yaml
-├── configs/
-│   └── config.yaml         # Configuration centralisée
-├── src/
-│   ├── __init__.py
-│   ├── config.py           # Chargement configuration
-│   ├── logger.py           # Logging structuré
-│   ├── data_collection.py  # Collecte des données
-│   ├── data_prepro.py      # Prétraitement
-│   ├── train.py            # Entraînement avec MLflow
-│   ├── evaluate.py         # Évaluation
-│   ├── tracking.py         # MLflow utilities
-│   └── validation.py       # Validation des données
-├── tests/
-│   ├── conftest.py
-│   ├── test_data_prepro.py
-│   └── test_model_training.py
-├── data/
-│   ├── raw/                # Données brutes
-│   └── processed/          # Données prétraitées
-├── models/                 # Modèles entraînés
-├── metrics/                # Métriques JSON
-├── plots/                  # Visualisations
-├── logs/                   # Fichiers de log
-├── Dockerfile
-├── docker-compose.yaml
-├── dvc.yaml               # Pipeline DVC
-├── Makefile               # Commandes automatisées
-├── pyproject.toml         # Configuration outils Python
-├── requirements.txt       # Dépendances
-├── .pre-commit-config.yaml
-└── README.md
+│
+├── 📁 src/                      # Code source principal
+│   ├── config.py                # Chargement de la configuration
+│   ├── logger.py                # Logging structuré
+│   ├── tracking.py              # MLflow tracker utilities
+│   ├── validation.py            # Validation des données
+│   ├── data_collection.py       # Collecte depuis OpenML
+│   ├── data_prepro.py           # Feature engineering
+│   ├── train.py                 # Entraînement avec MLflow
+│   ├── evaluate.py              # Évaluation et visualisations
+│   └── eda_stream.py            # Dashboard Streamlit
+│
+├── 📁 configs/
+│   └── config.yaml              # Configuration centralisée
+│
+├── 📁 data/
+│   ├── raw/                     # Données brutes (DVC)
+│   └── processed/               # Données traitées (DVC)
+│
+├── 📁 models/                   # Modèles entraînés
+├── 📁 metrics/                  # Métriques JSON
+├── 📁 plots/                    # Visualisations générées
+├── 📁 logs/                     # Fichiers de log
+├── 📁 mlruns/                   # MLflow tracking local
+│
+├── 📁 .github/workflows/        # CI/CD GitHub Actions
+│
+├── 🐳 Dockerfile                # Image Docker
+├── 🐳 docker-compose.yaml       # Services Docker
+├── 📋 dvc.yaml                  # Pipeline DVC
+├── ⚙️ make.ps1                  # Commandes PowerShell (Windows)
+├── 📦 requirements.txt          # Dépendances Python
+└── 📖 README.md
 ```
 
-## 🚀 Installation
+## 🚀 Quick Start
 
 ### Prérequis
-- Python 3.10+
+- Python 3.11+
 - Git
-- Docker (optionnel)
 
-### Installation rapide
+### Installation
 
-```bash
+```powershell
 # Cloner le repository
-git clone <repository-url>
+git clone https://github.com/votre-username/credit_score.git
 cd credit_score
 
 # Créer un environnement virtuel
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# ou
-.\venv\Scripts\activate  # Windows
+.\venv\Scripts\activate
 
 # Installer les dépendances
-pip install -r requirements.txt
-
-# Installer les hooks pre-commit
-pip install pre-commit
-pre-commit install
+.\make.ps1 install
 ```
 
-### Installation avec Make (recommandé)
+### Lancer le pipeline complet
 
-```bash
-make setup-env      # Créer l'environnement
-make install-dev    # Installer avec outils de dev
+```powershell
+# Exécuter tout le pipeline (collecte → traitement → validation → training → évaluation)
+.\make.ps1 pipeline
 ```
 
 ## 📊 Dataset
 
-Le projet utilise le dataset de credit scoring d'OpenML (ID: 46441) contenant des informations sur les clients bancaires pour prédire leur score de crédit.
+Le projet utilise le dataset de credit scoring d'**OpenML** (ID: 46441).
 
-### Features principales :
-- **Critiques** : `total_month`, `outstanding_debt`, `num_of_delayed_payment`, `payment_behaviour`, `credit_utilization_ratio`
-- **Importantes** : `annual_income`, `total_emi_per_month`, `monthly_inhand_salary`, `delay_from_due_date`, `credit_mix`
-- **Engineered** : `debt_to_income`, `emi_to_income_ratio`, `loan_to_income_ratio`, `credit_efficiency`, etc.
+| Propriété | Valeur |
+|-----------|--------|
+| 📊 Samples | 100,000 |
+| 🔢 Features | 19 (après preprocessing) |
+| 🎯 Target | Score de crédit (3 classes) |
+| 📥 Source | OpenML Dataset #46441 |
+
+### Features Engineered
+
+```
+debt_to_income          = outstanding_debt / annual_income
+emi_to_income_ratio     = total_emi_per_month / monthly_inhand_salary
+loan_to_income_ratio    = outstanding_debt / monthly_inhand_salary
+delayed_payment_freq    = num_of_delayed_payment / num_of_loan
+credit_efficiency       = credit_utilization_ratio * (1 - delay_from_due_date)
+payment_discipline_score = 1 - (num_of_delayed_payment / (num_credit_inquiries + 1))
+```
 
 ## 🔄 Pipeline DVC
 
-Le pipeline est composé de 5 étapes :
+Le pipeline est orchestré par DVC en **5 étapes** :
 
-```bash
-# Exécuter le pipeline complet
-dvc repro
-
-# Voir le statut
-dvc status
-
-# Voir le DAG
-dvc dag
-
-# Voir les métriques
-dvc metrics show
+```mermaid
+graph LR
+    A[📥 collection] --> B[⚙️ processing]
+    B --> C[✅ validation]
+    C --> D[🎯 training]
+    D --> E[📊 evaluate]
 ```
 
-### Étapes du pipeline :
-1. **collection** : Téléchargement des données depuis OpenML
-2. **processing** : Nettoyage et feature engineering
-3. **validation** : Validation des données avec schémas
-4. **model_training** : Entraînement du RandomForest avec MLflow
-5. **evaluate** : Calcul des métriques et visualisations
+### Commandes DVC
 
-```
-┌────────────┐     ┌────────────┐     ┌────────────┐
-│ collection │────▶│ processing │────▶│ validation │
-└────────────┘     └────────────┘     └─────┬──────┘
-                                            │
-                   ┌────────────┐     ┌─────▼──────┐
-                   │  evaluate  │◀────│  training  │
-                   └────────────┘     └────────────┘
+```powershell
+.\make.ps1 pipeline      # Exécuter le pipeline complet
+.\make.ps1 dvc-status    # Voir le statut
+.\make.ps1 dvc-dag       # Visualiser le DAG
+.\make.ps1 dvc-metrics   # Afficher les métriques
 ```
 
-## 📈 Utilisation
+### Description des étapes
 
-### Avec Make (recommandé)
+| Étape | Script | Description |
+|-------|--------|-------------|
+| **collection** | `data_collection.py` | Téléchargement depuis OpenML |
+| **processing** | `data_prepro.py` | Nettoyage et feature engineering |
+| **validation** | `validation.py` | Validation des données avec schémas |
+| **training** | `train.py` | Entraînement RandomForest + MLflow |
+| **evaluate** | `evaluate.py` | Métriques et visualisations |
 
-```bash
-make help           # Voir toutes les commandes
-make train          # Entraîner le modèle
-make evaluate       # Évaluer le modèle
-make test           # Lancer les tests
-make lint           # Vérifier le code
-make format         # Formatter le code
-make mlflow         # Lancer MLflow UI
-make streamlit      # Lancer le dashboard
-make docker-build   # Construire l'image Docker
-```
+## 📈 MLflow Tracking
 
-### Sans Make
+Le tracking des expériences est automatique lors de l'entraînement.
 
-```bash
-# Entraîner le modèle
-python src/train.py
-
-# Évaluer le modèle
-python src/evaluate.py
-
-# Lancer les tests
-pytest tests/ -v
-
+```powershell
 # Lancer MLflow UI
-mlflow ui --port 5000
+.\make.ps1 mlflow
+```
 
-# Lancer Streamlit
-streamlit run eda_stream.py
+🌐 Accédez à **http://localhost:5000**
+
+### Ce qui est tracké :
+
+| Catégorie | Éléments |
+|-----------|----------|
+| **Parameters** | n_estimators, max_depth, min_samples_split, class_weight |
+| **Metrics** | accuracy, precision, recall, f1_score, roc_auc, cv_scores |
+| **Artifacts** | model.pkl, confusion_matrix.png, feature_importance.png |
+
+## 🖥️ Commandes Disponibles
+
+```powershell
+.\make.ps1 help          # 📖 Afficher l'aide
+
+# PIPELINE
+.\make.ps1 install       # 📦 Installer les dépendances
+.\make.ps1 pipeline      # 🔄 Exécuter le pipeline complet
+.\make.ps1 train         # 🎯 Entraîner le modèle (avec MLflow)
+.\make.ps1 evaluate      # 📊 Évaluer le modèle
+
+# SERVICES
+.\make.ps1 mlflow        # 📈 Lancer MLflow UI (port 5000)
+.\make.ps1 streamlit     # 📱 Lancer Streamlit EDA (port 8501)
+
+# DVC
+.\make.ps1 dvc-status    # 📋 Statut du pipeline
+.\make.ps1 dvc-dag       # 🌳 Visualiser le DAG
+.\make.ps1 dvc-metrics   # 📊 Afficher les métriques
 ```
 
 ## 🐳 Docker
 
-```bash
+```powershell
 # Construire l'image
 docker build -t credit-score:latest .
 
-# Lancer avec docker-compose
+# Lancer tous les services
 docker-compose up -d
-
-# Services disponibles:
-# - MLflow UI: http://localhost:5000
-# - Streamlit: http://localhost:8501
 ```
 
-## 📊 Métriques
+### Services disponibles
 
-Les métriques sont sauvegardées dans `metrics/metrics.json` et incluent :
-- Accuracy
-- Precision (macro & weighted)
-- Recall (macro & weighted)
-- F1-Score (macro & weighted)
-- ROC AUC
-- Cross-validation scores
+| Service | Port | Description |
+|---------|------|-------------|
+| **MLflow** | 5000 | UI de tracking des expériences |
+| **Streamlit** | 8501 | Dashboard EDA interactif |
+| **Trainer** | - | Service d'entraînement |
+| **Evaluator** | - | Service d'évaluation |
 
-### Tracking avec MLflow
+## 📊 Résultats
 
-```bash
-# Lancer MLflow UI
-make mlflow
-# ou
-mlflow ui --port 5000
+### Dernières métriques (RandomForest)
+
+| Métrique | Score |
+|----------|-------|
+| **Accuracy** | 95.22% |
+| **F1-Score (macro)** | 94.90% |
+| **ROC AUC** | 99.17% |
+| **Cross-Val Mean** | ~95% |
+
+### Artefacts générés
+
+```
+models/
+└── model.pkl                 # Modèle entraîné
+
+metrics/
+├── train_metrics.json        # Métriques d'entraînement
+└── metrics.json              # Métriques d'évaluation
+
+plots/
+├── confusion_matrix.png      # Matrice de confusion
+└── feature_importance.png    # Importance des features
 ```
 
-Accédez à http://localhost:5000 pour voir :
-- Historique des expériences
-- Comparaison des métriques
-- Paramètres des modèles
-- Artifacts (modèles, plots)
+## 🛠️ Stack Technique
 
-## 🧪 Tests
-
-```bash
-# Lancer tous les tests
-make test
-
-# Avec couverture
-make coverage
-
-# Tests en parallèle
-make test-fast
-```
-
-## 🔒 Qualité du Code
-
-Le projet utilise plusieurs outils pour garantir la qualité :
-
-- **Ruff** : Linting rapide
-- **Black** : Formatage du code
-- **isort** : Tri des imports
-- **pre-commit** : Hooks automatiques
-- **Bandit** : Analyse de sécurité
-
-```bash
-# Vérifier le code
-make check
-
-# Formatter automatiquement
-make format
-
-# Lancer pre-commit
-make pre-commit
-```
-
-## 🛠️ Technologies
+<div align="center">
 
 | Catégorie | Technologies |
-|-----------|-------------|
-| **ML** | Scikit-learn, Pandas, NumPy |
-| **MLOps** | DVC, MLflow |
-| **Web** | Streamlit |
-| **Tests** | Pytest, Coverage |
-| **CI/CD** | GitHub Actions |
-| **Container** | Docker, Docker Compose |
-| **Quality** | Ruff, Black, Pre-commit |
+|:---------:|:-------------|
+| **🤖 Machine Learning** | Scikit-learn, Pandas, NumPy, Imbalanced-learn |
+| **📊 MLOps** | DVC, MLflow |
+| **🌐 Web** | Streamlit |
+| **🐳 Container** | Docker, Docker Compose |
+| **🔁 CI/CD** | GitHub Actions |
+| **📝 Config** | YAML, Dataclasses |
 
-## 📝 Auteur
+</div>
 
-Projet MLOps - Credit Scoring
+## 📝 Configuration
 
-## 📄 License
+La configuration est centralisée dans `configs/config.yaml` :
 
-MIT License
+```yaml
+data:
+  raw_path: "data/raw/data.csv"
+  processed_path: "data/processed/processed.csv"
+  
+model:
+  name: "RandomForestClassifier"
+  n_estimators: 500
+  max_depth: 15
+  
+mlflow:
+  experiment_name: "credit-scoring"
+  tracking_uri: "mlruns"
+```
+
+---
+
+<div align="center">
+
+**⭐ Star ce repo si vous le trouvez utile !**
+
+Made with ❤️ for MLOps
+
+</div>
