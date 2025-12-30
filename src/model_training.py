@@ -1,10 +1,13 @@
+import os
+import json
+import joblib
 import pandas as pd
 from data_prepro import create_feature_list
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.svm import SVC
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
@@ -68,11 +71,45 @@ def main():
     # Faire des prédictions
     y_pred = model.predict(X_test)
     
-    # Évaluer le modèle
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f"Model accuracy: {accuracy:.2f}")
+    # Évaluer le modèle - métriques complètes
+    metrics = {
+        "accuracy": float(accuracy_score(y_test, y_pred)),
+        "precision_macro": float(precision_score(y_test, y_pred, average='macro')),
+        "recall_macro": float(recall_score(y_test, y_pred, average='macro')),
+        "f1_macro": float(f1_score(y_test, y_pred, average='macro')),
+    }
     
-    return model, accuracy
+    print(f"\n{'='*50}")
+    print("MODEL EVALUATION METRICS")
+    print('='*50)
+    for metric_name, value in metrics.items():
+        print(f"{metric_name}: {value:.4f}")
+    
+    # Validation croisée
+    print(f"\n{'='*50}")
+    print("CROSS-VALIDATION (5-fold)")
+    print('='*50)
+    cv_scores = cross_val_score(model, X, y, cv=5, scoring='accuracy')
+    print(f"CV Accuracy: {cv_scores.mean():.4f} (+/- {cv_scores.std()*2:.4f})")
+    metrics["cv_accuracy_mean"] = float(cv_scores.mean())
+    metrics["cv_accuracy_std"] = float(cv_scores.std())
+    
+    # Sauvegarder le modèle
+    model_dir = "models"
+    os.makedirs(model_dir, exist_ok=True)
+    model_path = os.path.join(model_dir, "model.pkl")
+    joblib.dump(model, model_path)
+    print(f"\nModel saved to {model_path}")
+    
+    # Sauvegarder les métriques
+    metrics_dir = "metrics"
+    os.makedirs(metrics_dir, exist_ok=True)
+    metrics_path = os.path.join(metrics_dir, "train_metrics.json")
+    with open(metrics_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    print(f"Metrics saved to {metrics_path}")
+    
+    return model, metrics
 
 if __name__ == "__main__":
-    model, accuracy = main()
+    model, metrics = main()

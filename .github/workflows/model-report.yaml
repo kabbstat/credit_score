@@ -1,0 +1,86 @@
+# ===========================================
+# Model Evaluation Report - GitHub Actions
+# ===========================================
+# Runs on PR to compare model metrics
+
+name: Model Evaluation Report
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'configs/**'
+      - 'dvc.yaml'
+
+jobs:
+  evaluate:
+    name: Generate Model Report
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+      
+      - name: Checkout main (for comparison)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-branch
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Setup DVC
+        uses: iterative/setup-dvc@v1
+      
+      - name: Generate metrics comparison
+        run: |
+          echo "## 📊 Model Metrics Comparison" > metrics_report.md
+          echo "" >> metrics_report.md
+          
+          if [ -f "metrics/train_metrics.json" ]; then
+            echo "### Current Branch Metrics" >> metrics_report.md
+            echo '```json' >> metrics_report.md
+            cat metrics/train_metrics.json >> metrics_report.md
+            echo '```' >> metrics_report.md
+          else
+            echo "No metrics file found in current branch" >> metrics_report.md
+          fi
+          
+          if [ -f "main-branch/metrics/train_metrics.json" ]; then
+            echo "" >> metrics_report.md
+            echo "### Main Branch Metrics" >> metrics_report.md
+            echo '```json' >> metrics_report.md
+            cat main-branch/metrics/train_metrics.json >> metrics_report.md
+            echo '```' >> metrics_report.md
+          fi
+        continue-on-error: true
+      
+      - name: Comment PR with metrics
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            let report = '## 📊 Model Evaluation Report\n\nMetrics comparison will be available after running the full pipeline.';
+            
+            try {
+              report = fs.readFileSync('metrics_report.md', 'utf8');
+            } catch (e) {
+              console.log('No metrics report generated');
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+        continue-on-error: true

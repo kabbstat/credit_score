@@ -21,18 +21,84 @@ stages:
       md5: 4c50fbc2248b66bce5b00fcbc95e401c
       size: 5566
     outs:
+    - path: data/processed/features.txt
+      hash: md5
+      md5: 965e7be95da63761d067db363c7e6199
+      size: 365
     - path: data/processed/processed.csv
       hash: md5
       md5: 12ae369aa5636d04adf6416375dff33b
       size: 47942155
   model_training:
-    cmd: python src/model_training.py
+    cmd: python src/train.py --no-mlflow
+    deps:
+    - path: configs/config.yaml
+      hash: md5
+      md5: fed8337b2e0473324c7ea0e3e4ddd03a
+      size: 4096
+    - path: data/processed/processed.csv
+      hash: md5
+      md5: 12ae369aa5636d04adf6416375dff33b
+      size: 47942155
+    - path: src/data_prepro.py
+      hash: md5
+      md5: 4c50fbc2248b66bce5b00fcbc95e401c
+      size: 5566
+    - path: src/train.py
+      hash: md5
+      md5: e5b18334948149e78a34efe76d306574
+      size: 9022
+    outs:
+    - path: metrics/train_metrics.json
+      hash: md5
+      md5: 181b821eec3439958c97fe2c3fa99044
+      size: 366
+    - path: models/model.pkl
+      hash: md5
+      md5: 594ad76a16dee4ddc8ebe75203564871
+      size: 1591818554
+  validation:
+    cmd: python -c "from src.validation import validate_processed_data; valid, _
+      = validate_processed_data('data/processed/processed.csv'); exit(0 if valid
+      else 1)"
     deps:
     - path: data/processed/processed.csv
       hash: md5
       md5: 12ae369aa5636d04adf6416375dff33b
       size: 47942155
-    - path: src/model_training.py
+    - path: src/validation.py
       hash: md5
-      md5: 15d9417ee13b1155b417073714687a0c
-      size: 2873
+      md5: 9b176712cf27474bcad081056f54966b
+      size: 13957
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: data/processed/processed.csv
+      hash: md5
+      md5: 12ae369aa5636d04adf6416375dff33b
+      size: 47942155
+    - path: models/model.pkl
+      hash: md5
+      md5: 594ad76a16dee4ddc8ebe75203564871
+      size: 1591818554
+    - path: src/data_prepro.py
+      hash: md5
+      md5: 4c50fbc2248b66bce5b00fcbc95e401c
+      size: 5566
+    - path: src/evaluate.py
+      hash: md5
+      md5: 9dc16549509d75d019d887eb7379a260
+      size: 6151
+    outs:
+    - path: metrics/metrics.json
+      hash: md5
+      md5: 18f0921f7a47a2f836e0662a22f369ba
+      size: 293
+    - path: plots/confusion_matrix.png
+      hash: md5
+      md5: de529c421366ff4d530caa8e4c03cae4
+      size: 49267
+    - path: plots/feature_importance.png
+      hash: md5
+      md5: 8290dc303acc690ead9a4dd862df6891
+      size: 98915

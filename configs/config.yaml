@@ -1,0 +1,174 @@
+# ===========================================
+# PROJECT CONFIGURATION
+# ===========================================
+
+project:
+  name: "credit-score-prediction"
+  version: "1.0.0"
+  description: "MLOps pipeline for credit score prediction"
+  author: "MLOps Team"
+
+# ===========================================
+# DATA CONFIGURATION
+# ===========================================
+
+data:
+  # OpenML dataset configuration
+  openml_dataset_id: 46441
+  
+  # Paths
+  raw_data_path: "data/raw/data.csv"
+  processed_data_path: "data/processed/processed.csv"
+  features_path: "data/processed/features.txt"
+  
+  # Train/Test split
+  test_size: 0.2
+  random_state: 42
+
+# ===========================================
+# FEATURE ENGINEERING
+# ===========================================
+
+features:
+  critical:
+    - "total_month"
+    - "outstanding_debt"
+    - "num_of_delayed_payment"
+    - "payment_behaviour"
+    - "occupation"
+    - "payment_of_min_amount"
+    - "credit_utilization_ratio"
+    - "target"
+  
+  important:
+    - "annual_income"
+    - "total_emi_per_month"
+    - "monthly_inhand_salary"
+    - "delay_from_due_date"
+    - "credit_mix"
+  
+  engineered:
+    - "debt_to_income"
+    - "emi_to_income_ratio"
+    - "loan_to_income_ratio"
+    - "credit_efficiency"
+    - "disposable_income_factor"
+    - "payment_discipline_score"
+
+# ===========================================
+# MODEL CONFIGURATION
+# ===========================================
+
+model:
+  # Model selection
+  name: "RandomForestClassifier"
+  
+  # Hyperparameters
+  params:
+    n_estimators: 500
+    max_depth: null
+    min_samples_split: 2
+    min_samples_leaf: 1
+    max_features: "sqrt"
+    random_state: 42
+    n_jobs: -1
+    class_weight: "balanced"
+  
+  # Cross-validation
+  cv_folds: 5
+  
+  # Paths
+  model_path: "models/model.pkl"
+  model_registry_path: "models/registry"
+
+# ===========================================
+# TRAINING CONFIGURATION
+# ===========================================
+
+training:
+  # Experiment tracking
+  experiment_name: "credit_score_experiment"
+  
+  # Early stopping (if applicable)
+  early_stopping: false
+  patience: 10
+  
+  # Hyperparameter tuning
+  hyperparameter_tuning:
+    enabled: false
+    method: "randomized_search"  # grid_search, randomized_search, optuna
+    n_iter: 50
+    scoring: "f1_macro"
+
+# ===========================================
+# MLFLOW CONFIGURATION
+# ===========================================
+
+mlflow:
+  tracking_uri: "mlruns"
+  experiment_name: "credit_score_prediction"
+  registry_uri: "models/mlflow_registry"
+  
+  # Logging options
+  log_model: true
+  log_params: true
+  log_metrics: true
+  log_artifacts: true
+
+# ===========================================
+# EVALUATION CONFIGURATION
+# ===========================================
+
+evaluation:
+  metrics:
+    - "accuracy"
+    - "precision_macro"
+    - "recall_macro"
+    - "f1_macro"
+    - "roc_auc_ovr"
+  
+  # Thresholds for model validation
+  thresholds:
+    min_accuracy: 0.70
+    min_f1_macro: 0.65
+  
+  # Output paths
+  metrics_path: "metrics/metrics.json"
+  plots_path: "plots"
+
+# ===========================================
+# LOGGING CONFIGURATION
+# ===========================================
+
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/pipeline.log"
+  console: true
+
+# ===========================================
+# DATA VALIDATION
+# ===========================================
+
+data_validation:
+  enabled: true
+  
+  # Schema expectations
+  expectations:
+    min_rows: 1000
+    required_columns:
+      - "customer_id"
+      - "annual_income"
+      - "outstanding_debt"
+      - "target"
+    
+    # Column constraints
+    column_constraints:
+      annual_income:
+        min_value: 0
+        max_null_percentage: 0.1
+      outstanding_debt:
+        min_value: 0
+      credit_utilization_ratio:
+        min_value: 0
+        max_value: 100

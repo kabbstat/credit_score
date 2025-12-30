@@ -10,9 +10,37 @@ stages:
     - src/data_prepro.py
     outs:
     - data/processed/processed.csv
-  model_training:
-    cmd: python src/model_training.py
+    - data/processed/features.txt
+  validation:
+    cmd: python -c "from src.validation import validate_processed_data; valid, _ = validate_processed_data('data/processed/processed.csv'); exit(0 if valid else 1)"
     deps:
     - data/processed/processed.csv
-    - src/model_training.py
+    - src/validation.py
+  model_training:
+    cmd: python src/train.py
+    deps:
+    - data/processed/processed.csv
+    - src/train.py
+    - src/data_prepro.py
+    - configs/config.yaml
+    outs:
+    - models/model.pkl
+    metrics:
+    - metrics/train_metrics.json:
+        cache: false
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - models/model.pkl
+    - data/processed/processed.csv
+    - src/evaluate.py
+    - src/data_prepro.py
+    plots:
+    - plots/confusion_matrix.png:
+        cache: false
+    - plots/feature_importance.png:
+        cache: false
+    metrics:
+    - metrics/metrics.json:
+        cache: false
 

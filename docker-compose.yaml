@@ -1,0 +1,142 @@
+# ===========================================
+# CREDIT SCORE PREDICTION - DOCKER COMPOSE
+# ===========================================
+# Orchestrates all services for the ML pipeline
+
+version: '3.8'
+
+services:
+  # ===========================================
+  # TRAINING SERVICE
+  # ===========================================
+  trainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: trainer
+    container_name: credit-score-trainer
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./metrics:/app/metrics
+      - ./mlruns:/app/mlruns
+      - ./logs:/app/logs
+    environment:
+      - PYTHONPATH=/app
+    command: python src/train.py
+    networks:
+      - ml-network
+
+  # ===========================================
+  # EVALUATION SERVICE
+  # ===========================================
+  evaluator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: evaluator
+    container_name: credit-score-evaluator
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./metrics:/app/metrics
+      - ./plots:/app/plots
+      - ./logs:/app/logs
+    depends_on:
+      - trainer
+    command: python src/evaluate.py
+    networks:
+      - ml-network
+
+  # ===========================================
+  # MLFLOW TRACKING SERVER
+  # ===========================================
+  mlflow:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: mlflow-server
+    container_name: mlflow-server
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/app/mlruns
+      - ./models:/app/models
+    environment:
+      - MLFLOW_TRACKING_URI=http://0.0.0.0:5000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ml-network
+
+  # ===========================================
+  # STREAMLIT DASHBOARD
+  # ===========================================
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: webapp
+    container_name: credit-score-webapp
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data:ro
+      - ./models:/app/models:ro
+    depends_on:
+      - trainer
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ml-network
+
+  # ===========================================
+  # JUPYTER NOTEBOOK (Development)
+  # ===========================================
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: credit-score-jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./:/app
+    command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token=''
+    profiles:
+      - dev
+    networks:
+      - ml-network
+
+  # ===========================================
+  # FULL PIPELINE (DVC)
+  # ===========================================
+  pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: credit-score-pipeline
+    volumes:
+      - ./:/app
+    command: dvc repro
+    profiles:
+      - pipeline
+    networks:
+      - ml-network
+
+networks:
+  ml-network:
+    driver: bridge
+
+volumes:
+  mlruns:
+  models:
+  data:
