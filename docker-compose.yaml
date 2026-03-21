@@ -132,6 +132,33 @@ services:
     networks:
       - ml-network
 
+  # ===========================================
+  # FASTAPI SCORING API
+  # ===========================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    container_name: credit-score-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models:ro
+      - ./configs:/app/configs:ro
+      - ./logs:/app/logs
+    depends_on:
+      - trainer
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      - PYTHONPATH=/app
+    networks:
+      - ml-network
+
 networks:
   ml-network:
     driver: bridge

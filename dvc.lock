@@ -30,7 +30,7 @@ stages:
       md5: 12ae369aa5636d04adf6416375dff33b
       size: 47942155
   model_training:
-    cmd: python src/train.py --no-mlflow
+    cmd: python src/train.py
     deps:
     - path: configs/config.yaml
       hash: md5
@@ -46,17 +46,17 @@ stages:
       size: 5566
     - path: src/train.py
       hash: md5
-      md5: e5b18334948149e78a34efe76d306574
-      size: 9022
+      md5: d6bad7832ea25f4904049d08d8b204f7
+      size: 9731
     outs:
     - path: metrics/train_metrics.json
       hash: md5
-      md5: 181b821eec3439958c97fe2c3fa99044
-      size: 366
+      md5: 79287b74c5ee19bd49181595e7312124
+      size: 399
     - path: models/model.pkl
       hash: md5
-      md5: 594ad76a16dee4ddc8ebe75203564871
-      size: 1591818554
+      md5: f817a836614927e81f5c58b79cdfce42
+      size: 1589869546
   validation:
     cmd: python -c "from src.validation import validate_processed_data; valid, _
       = validate_processed_data('data/processed/processed.csv'); exit(0 if valid
@@ -79,26 +79,94 @@ stages:
       size: 47942155
     - path: models/model.pkl
       hash: md5
-      md5: 594ad76a16dee4ddc8ebe75203564871
-      size: 1591818554
+      md5: f817a836614927e81f5c58b79cdfce42
+      size: 1589869546
     - path: src/data_prepro.py
       hash: md5
       md5: 4c50fbc2248b66bce5b00fcbc95e401c
       size: 5566
     - path: src/evaluate.py
       hash: md5
-      md5: 9dc16549509d75d019d887eb7379a260
-      size: 6151
+      md5: 56b68823b100f4ec4169de8b66dfd23e
+      size: 18963
+    - path: src/scorecard.py
+      hash: md5
+      md5: 0738a57fe6d7e28aee3492a8534539f0
+      size: 10918
     outs:
     - path: metrics/metrics.json
       hash: md5
-      md5: 18f0921f7a47a2f836e0662a22f369ba
-      size: 293
+      md5: 2f3c9f243a1835282c35bd71ca7123ed
+      size: 400
+    - path: metrics/scorecard_metrics.json
+      hash: md5
+      md5: b8f66fed102ba439b61601f39ca139df
+      size: 109
     - path: plots/confusion_matrix.png
       hash: md5
-      md5: de529c421366ff4d530caa8e4c03cae4
-      size: 49267
+      md5: f3c16da7881a2693ac53e79bf2e8139d
+      size: 49648
     - path: plots/feature_importance.png
       hash: md5
-      md5: 8290dc303acc690ead9a4dd862df6891
-      size: 98915
+      md5: e18cdc101a63889cb20e21009877aec0
+      size: 98926
+    - path: plots/ks_curve.png
+      hash: md5
+      md5: 85cd3829bff3ce133fe1bbcdd39763d5
+      size: 69241
+    - path: plots/shap_beeswarm.png
+      hash: md5
+      md5: e1d6e7f45cb425c00acbb914066815e0
+      size: 187141
+    - path: plots/shap_summary.png
+      hash: md5
+      md5: 8b75dd5358676fa2f4a51d489c344413
+      size: 80935
+  scorecard:
+    cmd: python src/scorecard.py
+    deps:
+    - path: data/processed/processed.csv
+      hash: md5
+      md5: 12ae369aa5636d04adf6416375dff33b
+      size: 47942155
+    - path: src/data_prepro.py
+      hash: md5
+      md5: 4c50fbc2248b66bce5b00fcbc95e401c
+      size: 5566
+    - path: src/scorecard.py
+      hash: md5
+      md5: 0738a57fe6d7e28aee3492a8534539f0
+      size: 10918
+    outs:
+    - path: metrics/iv_summary.json
+      hash: md5
+      md5: 81642a568ba648e7dc7e2284f48382e6
+      size: 1259
+    - path: plots/iv_ranking.png
+      hash: md5
+      md5: 3cc6ea1da83cf58bb55a0478e705b2ad
+      size: 84331
+  resampling:
+    cmd: python src/resampling.py
+    deps:
+    - path: data/processed/processed.csv
+      hash: md5
+      md5: 12ae369aa5636d04adf6416375dff33b
+      size: 47942155
+    - path: src/data_prepro.py
+      hash: md5
+      md5: 4c50fbc2248b66bce5b00fcbc95e401c
+      size: 5566
+    - path: src/resampling.py
+      hash: md5
+      md5: b4fa2e8954027a20ba20e0645c50c6d5
+      size: 9948
+    outs:
+    - path: metrics/resampling_comparison.json
+      hash: md5
+      md5: d18f51d72e3ed802a8470df794688149
+      size: 708
+    - path: plots/resampling_comparison.png
+      hash: md5
+      md5: 9724b1e363988d6fb2dac7a7fbebc797
+      size: 64742

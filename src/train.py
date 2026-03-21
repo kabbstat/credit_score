@@ -13,6 +13,12 @@ from pathlib import Path
 
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
+
+try:
+    from xgboost import XGBClassifier
+    _XGBOOST_AVAILABLE = True
+except ImportError:
+    _XGBOOST_AVAILABLE = False
 from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
@@ -60,16 +66,26 @@ def stratified_sample(df: pd.DataFrame, stratify_col: str, frac: float = 1.0) ->
 
 
 def get_model(model_name: str, params: dict):
-    """Get model instance by name."""
+    """
+    Get model instance by name.
+    Supporte: RandomForest, GradientBoosting, XGBoost, LogisticRegression (L1/Lasso).
+    """
     models = {
         "RandomForestClassifier": RandomForestClassifier,
         "GradientBoostingClassifier": GradientBoostingClassifier,
         "LogisticRegression": LogisticRegression,
+        # Logistic Regression avec régularisation L1 (Lasso) — expertise CV CIH Bank
+        "LogisticRegressionLasso": lambda **kw: LogisticRegression(
+            penalty='l1', solver='saga', max_iter=1000, **kw
+        ),
     }
-    
+
+    if _XGBOOST_AVAILABLE:
+        models["XGBClassifier"] = XGBClassifier
+
     if model_name not in models:
         raise ValueError(f"Unknown model: {model_name}. Available: {list(models.keys())}")
-    
+
     return models[model_name](**params)
 
 
@@ -90,9 +106,11 @@ def compute_metrics(y_true, y_pred, y_proba=None) -> dict:
             metrics["roc_auc_ovr"] = float(roc_auc_score(
                 y_true, y_proba, multi_class='ovr', average='macro'
             ))
+            # Gini coefficient (= 2×AUC − 1) — métrique standard scoring bancaire
+            metrics["gini_coefficient"] = round(2 * metrics["roc_auc_ovr"] - 1, 4)
         except Exception as e:
-            logger.warning(f"Could not compute ROC AUC: {e}")
-    
+            logger.warning(f"Could not compute ROC AUC / Gini: {e}")
+
     return metrics
 
 

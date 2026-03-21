@@ -84,7 +84,7 @@ credit_score/
 
 ```powershell
 # Cloner le repository
-git clone https://github.com/votre-username/credit_score.git
+git clone https://github.com/kabbstat/credit_score.git
 cd credit_score
 
 # Créer un environnement virtuel
@@ -152,8 +152,11 @@ graph LR
 | **collection** | `data_collection.py` | Téléchargement depuis OpenML |
 | **processing** | `data_prepro.py` | Nettoyage et feature engineering |
 | **validation** | `validation.py` | Validation des données avec schémas |
-| **training** | `train.py` | Entraînement RandomForest + MLflow |
-| **evaluate** | `evaluate.py` | Métriques et visualisations |
+| **scorecard** | `scorecard.py` | Analyse WoE/IV et ranking des features |
+| **resampling** | `resampling.py` | SMOTE / Undersampling (classes déséquilibrées) |
+| **training** | `train.py` | Entraînement + MLflow (RF, XGBoost, LR Lasso) |
+| **evaluate** | `evaluate.py` | Métriques bancaires, SHAP, rapport HTML |
+| **monitoring** | `monitoring.py` | Drift detection (PSI) |
 
 ## 📈 MLflow Tracking
 
@@ -216,14 +219,24 @@ docker-compose up -d
 
 ## 📊 Résultats
 
-### Dernières métriques (RandomForest)
+### Dernières métriques (RandomForest — 100K samples, 3 classes)
+
+**Métriques standard ML :**
 
 | Métrique | Score |
 |----------|-------|
-| **Accuracy** | 95.22% |
-| **F1-Score (macro)** | 94.90% |
-| **ROC AUC** | 99.17% |
+| **Accuracy** | 95.36% |
+| **F1-Score (macro)** | 95.09% |
+| **ROC AUC (OvR)** | 99.20% |
 | **Cross-Val Mean** | ~95% |
+
+**Métriques bancaires (Scoring crédit) :**
+
+| Métrique | Score | Seuil industrie |
+|----------|-------|-----------------|
+| **Gini coefficient** | **99.05%** | > 40% acceptable |
+| **KS statistic** | **94.47%** | > 30% bon |
+| **PSI monitoring** | rapport `metrics/monitoring_report.json` | < 10% stable |
 
 ### Artefacts générés
 
@@ -263,16 +276,26 @@ La configuration est centralisée dans `configs/config.yaml` :
 data:
   raw_path: "data/raw/data.csv"
   processed_path: "data/processed/processed.csv"
-  
+
 model:
-  name: "RandomForestClassifier"
-  n_estimators: 500
-  max_depth: 15
-  
+  # Changer le modèle ici sans toucher au code
+  name: "RandomForestClassifier"   # ou "XGBClassifier", "LogisticRegressionLasso"
+  params:
+    n_estimators: 500
+    class_weight: "balanced"       # gestion du déséquilibre des classes
+
 mlflow:
   experiment_name: "credit-scoring"
   tracking_uri: "mlruns"
 ```
+
+### Modèles supportés
+
+| Modèle | Usage |
+|--------|-------|
+| `RandomForestClassifier` | Scoring crédit (interprétabilité réglementaire) |
+| `XGBClassifier` | Détection de fraude (performance sur classes déséquilibrées) |
+| `LogisticRegressionLasso` | Scorecard réglementaire (Bâle II/III, conformité RGPD) |
 
 ---
 

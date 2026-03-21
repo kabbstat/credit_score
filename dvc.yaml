@@ -3,6 +3,7 @@ stages:
     cmd: python src/data_collection.py
     outs:
     - data/raw/data.csv
+
   processing:
     cmd: python src/data_prepro.py
     deps:
@@ -11,11 +12,39 @@ stages:
     outs:
     - data/processed/processed.csv
     - data/processed/features.txt
+
   validation:
     cmd: python -c "from src.validation import validate_processed_data; valid, _ = validate_processed_data('data/processed/processed.csv'); exit(0 if valid else 1)"
     deps:
     - data/processed/processed.csv
     - src/validation.py
+
+  scorecard:
+    cmd: python src/scorecard.py
+    deps:
+    - data/processed/processed.csv
+    - src/scorecard.py
+    - src/data_prepro.py
+    plots:
+    - plots/iv_ranking.png:
+        cache: false
+    metrics:
+    - metrics/iv_summary.json:
+        cache: false
+
+  resampling:
+    cmd: python src/resampling.py
+    deps:
+    - data/processed/processed.csv
+    - src/resampling.py
+    - src/data_prepro.py
+    plots:
+    - plots/resampling_comparison.png:
+        cache: false
+    metrics:
+    - metrics/resampling_comparison.json:
+        cache: false
+
   model_training:
     cmd: python src/train.py
     deps:
@@ -28,19 +57,42 @@ stages:
     metrics:
     - metrics/train_metrics.json:
         cache: false
+
   evaluate:
     cmd: python src/evaluate.py
     deps:
     - models/model.pkl
     - data/processed/processed.csv
     - src/evaluate.py
+    - src/scorecard.py
     - src/data_prepro.py
     plots:
     - plots/confusion_matrix.png:
         cache: false
     - plots/feature_importance.png:
         cache: false
+    - plots/shap_summary.png:
+        cache: false
+    - plots/shap_beeswarm.png:
+        cache: false
+    - plots/ks_curve.png:
+        cache: false
     metrics:
     - metrics/metrics.json:
+        cache: false
+    - metrics/scorecard_metrics.json:
+        cache: false
+
+  monitoring:
+    cmd: python src/monitoring.py
+    deps:
+    - data/processed/processed.csv
+    - src/monitoring.py
+    - src/data_prepro.py
+    plots:
+    - plots/psi_dashboard.png:
+        cache: false
+    metrics:
+    - metrics/monitoring_report.json:
         cache: false
 
