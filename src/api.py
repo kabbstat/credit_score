@@ -1,7 +1,6 @@
 """
-API FastAPI de scoring crédit — Production-ready.
+API FastAPI de scoring crédit.
 Validation Pydantic, gestion d'erreurs, health check, batch scoring.
-Expertise: FastAPI + Docker, déploiement MLOps (LLMops Covéa, InvestorSight).
 """
 
 import os

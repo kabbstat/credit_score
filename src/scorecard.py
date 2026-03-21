@@ -1,7 +1,5 @@
 """
-Scorecard Bancaire: WoE, IV, Gini, KS
-Méthodologie scoring crédit réglementaire (Bâle II/III compatible)
-Expertise: CIH Bank — Grille de score, maximisation du Gini, Logit Lasso
+Scorecard: WoE, IV, Gini, KS — métriques de scoring crédit.
 """
 
 import os

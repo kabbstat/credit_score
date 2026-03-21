@@ -1,7 +1,5 @@
 """
 Gestion des données déséquilibrées: SMOTE, Undersampling, comparaison.
-Expertise: CIH Bank — optimisation rappel/faux positifs en scoring crédit
-et détection de fraude sur données fortement déséquilibrées.
 """
 
 import os
@@ -29,8 +27,6 @@ def apply_smote(
     """
     SMOTE (Synthetic Minority Over-sampling Technique).
     Génère des exemples synthétiques pour les classes minoritaires.
-
-    Utilisé en production CIH Bank pour la détection de fraude.
     """
     smote = SMOTE(random_state=random_state, n_jobs=-1)
     X_res, y_res = smote.fit_resample(X, y)

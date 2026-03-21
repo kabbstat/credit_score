@@ -1,7 +1,5 @@
 """
 Monitoring de dérive modèle: PSI, Data Drift.
-Conformité réglementaire: traçabilité des alertes de dérive post-déploiement.
-Expertise: CIH Bank — monitoring Data Drift, PSI, contraintes Bâle II/III.
 """
 
 import os

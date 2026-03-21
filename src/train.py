@@ -74,7 +74,6 @@ def get_model(model_name: str, params: dict):
         "RandomForestClassifier": RandomForestClassifier,
         "GradientBoostingClassifier": GradientBoostingClassifier,
         "LogisticRegression": LogisticRegression,
-        # Logistic Regression avec régularisation L1 (Lasso) — expertise CV CIH Bank
         "LogisticRegressionLasso": lambda **kw: LogisticRegression(
             penalty='l1', solver='saga', max_iter=1000, **kw
         ),

@@ -297,12 +297,3 @@ mlflow:
 | `XGBClassifier` | Détection de fraude (performance sur classes déséquilibrées) |
 | `LogisticRegressionLasso` | Scorecard réglementaire (Bâle II/III, conformité RGPD) |
 
----
-
-<div align="center">
-
-**⭐ Star ce repo si vous le trouvez utile !**
-
-Made with ❤️ for MLOps
-
-</div>
